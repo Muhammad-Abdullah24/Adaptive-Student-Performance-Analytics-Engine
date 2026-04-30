@@ -3,6 +3,10 @@ import { INTERVENTIONS } from "../data/mockData";
 import { Badge } from "../components/UI";
 
 export default function InterventionsPage() {
+  const pendingCount     = INTERVENTIONS.filter((iv) => iv.status === "pending").length;
+  const inProgressCount  = INTERVENTIONS.filter((iv) => iv.status === "in_progress").length;
+  const completedCount   = INTERVENTIONS.filter((iv) => iv.status === "completed").length;
+
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
@@ -19,9 +23,9 @@ export default function InterventionsPage() {
       {/* Summary */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 24 }}>
         {[
-          { label: "PENDING",     count: 1, color: COLORS.amber  },
-          { label: "IN PROGRESS", count: 1, color: COLORS.sky    },
-          { label: "COMPLETED",   count: 2, color: COLORS.emerald },
+          { label: "PENDING",     count: pendingCount,    color: COLORS.amber   },
+          { label: "IN PROGRESS", count: inProgressCount, color: COLORS.sky     },
+          { label: "COMPLETED",   count: completedCount,  color: COLORS.emerald },
         ].map((s) => (
           <div key={s.label} style={{
             background: s.color + "15", border: `1px solid ${s.color}40`,

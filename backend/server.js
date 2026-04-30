@@ -47,10 +47,13 @@ async function start() {
 }
 
 // Graceful shutdown
-process.on("SIGINT", async () => {
+async function shutdown() {
   console.log("\nShutting down...");
   await closePool();
   process.exit(0);
-});
+}
+
+process.on("SIGINT",  shutdown);
+process.on("SIGTERM", shutdown);
 
 start();

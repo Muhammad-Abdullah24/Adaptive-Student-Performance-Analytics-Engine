@@ -64,7 +64,14 @@ export default function StudentsPage() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((s, i) => (
+            {filtered.length === 0 ? (
+              <tr>
+                <td colSpan={9} style={{ padding: "32px 16px", textAlign: "center", color: COLORS.textMuted, fontSize: 14 }}>
+                  No students match the current filter.
+                </td>
+              </tr>
+            ) : (
+            filtered.map((s, i) => (
               <tr
                 key={s.id}
                 onClick={() => setSelected(selected?.id === s.id ? null : s)}
@@ -98,7 +105,8 @@ export default function StudentsPage() {
                   {selected?.id === s.id ? "▲ Close" : "View →"}
                 </td>
               </tr>
-            ))}
+            ))
+            )}
           </tbody>
         </table>
       </div>

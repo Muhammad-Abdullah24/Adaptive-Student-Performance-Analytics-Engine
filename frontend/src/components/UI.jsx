@@ -33,10 +33,11 @@ export function Badge({ variant, children, small }) {
 
 // ── MiniBar ────────────────────────────────────────────────────────────────────
 export function MiniBar({ value, max = 100, color = COLORS.indigo, height = 6 }) {
-  const fill = value < 50 ? COLORS.rose : value < 70 ? COLORS.amber : color;
+  const clamped = Math.min(Math.max(value, 0), max);
+  const fill = clamped < 50 ? COLORS.rose : clamped < 70 ? COLORS.amber : color;
   return (
     <div style={{ background: COLORS.slate200, borderRadius: 99, height, overflow: "hidden", width: "100%" }}>
-      <div style={{ width: `${(value / max) * 100}%`, height: "100%", background: fill, borderRadius: 99, transition: "width 0.6s ease" }} />
+      <div style={{ width: `${(clamped / max) * 100}%`, height: "100%", background: fill, borderRadius: 99, transition: "width 0.6s ease" }} />
     </div>
   );
 }
@@ -71,6 +72,7 @@ export function StatCard({ label, value, sub, icon, color, trend }) {
 // ── BarChart ───────────────────────────────────────────────────────────────────
 export function BarChart({ data, xKey, yKey, color, height = 180 }) {
   const max = Math.max(...data.map((d) => d[yKey]));
+  if (max === 0) return null;
   return (
     <div style={{ display: "flex", alignItems: "flex-end", gap: 8, height, paddingTop: 8 }}>
       {data.map((d, i) => {

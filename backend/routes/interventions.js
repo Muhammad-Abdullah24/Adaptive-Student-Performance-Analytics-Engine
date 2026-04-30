@@ -55,6 +55,13 @@ router.post("/", async (req, res) => {
     conn = await getConnection();
     const { flagId, studentId, instructorId, intType, description, dueDate } = req.body;
 
+    if (!flagId || !studentId || !instructorId || !intType || !dueDate) {
+      return res.status(400).json({
+        success: false,
+        message: "flagId, studentId, instructorId, intType, and dueDate are required.",
+      });
+    }
+
     await conn.execute(
       `INSERT INTO INTERVENTIONS (flag_id, student_id, instructor_id, int_type, description, due_date)
        VALUES (:flagId, :studentId, :instructorId, :intType, :description, TO_DATE(:dueDate, 'YYYY-MM-DD'))`,
@@ -79,6 +86,10 @@ router.patch("/:id/status", async (req, res) => {
   try {
     conn = await getConnection();
     const { status, outcomeNotes } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ success: false, message: "status is required." });
+    }
 
     const validStatuses = ["PENDING", "IN_PROGRESS", "COMPLETED", "CANCELLED"];
     if (!validStatuses.includes(status.toUpperCase())) {

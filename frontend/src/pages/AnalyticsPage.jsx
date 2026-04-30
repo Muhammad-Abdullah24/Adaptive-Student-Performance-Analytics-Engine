@@ -19,8 +19,19 @@ function QueryLabel({ color, bg, children }) {
 }
 
 export default function AnalyticsPage() {
-  const belowAvg  = STUDENTS.filter((s) => s.cgpa < 2.5);
-  const topFive   = [...STUDENTS].sort((a, b) => b.cgpa - a.cgpa).slice(0, 5);
+  // Compute per-department average CGPA from real data
+  const deptAvgs = STUDENTS.reduce((acc, s) => {
+    if (!acc[s.dept]) acc[s.dept] = { sum: 0, count: 0 };
+    acc[s.dept].sum   += s.cgpa;
+    acc[s.dept].count += 1;
+    return acc;
+  }, {});
+  Object.keys(deptAvgs).forEach((k) => {
+    deptAvgs[k] = deptAvgs[k].sum / deptAvgs[k].count;
+  });
+
+  const belowAvg = STUDENTS.filter((s) => s.cgpa < deptAvgs[s.dept]);
+  const topFive  = [...STUDENTS].sort((a, b) => b.cgpa - a.cgpa).slice(0, 5);
 
   return (
     <div>
@@ -72,7 +83,7 @@ export default function AnalyticsPage() {
               }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text }}>{s.name}</div>
-                  <div style={{ fontSize: 11, color: COLORS.textMuted }}>Dept avg: 2.80 — Gap: {(2.80 - s.cgpa).toFixed(2)}</div>
+                  <div style={{ fontSize: 11, color: COLORS.textMuted }}>Dept avg: {deptAvgs[s.dept].toFixed(2)} — Gap: {(deptAvgs[s.dept] - s.cgpa).toFixed(2)}</div>
                 </div>
                 <div style={{ fontWeight: 700, color: COLORS.rose, fontSize: 15 }}>{s.cgpa.toFixed(2)}</div>
                 <Badge variant={s.risk} small>{s.risk}</Badge>
