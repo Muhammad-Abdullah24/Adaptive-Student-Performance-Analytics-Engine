@@ -1,0 +1,27 @@
+const COLORS = {
+  indigo:       "#4F46E5",
+  indigoDark:   "#3730A3",
+  indigoLight:  "#EEF2FF",
+  emerald:      "#059669",
+  emeraldLight: "#ECFDF5",
+  emeraldDark:  "#064E3B",
+  amber:        "#D97706",
+  amberLight:   "#FFFBEB",
+  amberDark:    "#78350F",
+  rose:         "#E11D48",
+  roseLight:    "#FFF1F2",
+  roseDark:     "#881337",
+  sky:          "#0284C7",
+  skyLight:     "#F0F9FF",
+  skyDark:      "#0C4A6E",
+  violet:       "#7C3AED",
+  slate:        "#475569",
+  slateLight:   "#F8FAFC",
+  slate100:     "#F1F5F9",
+  slate200:     "#E2E8F0",
+  white:        "#FFFFFF",
+  text:         "#0F172A",
+  textMuted:    "#64748B",
+};
+
+export default COLORS;
