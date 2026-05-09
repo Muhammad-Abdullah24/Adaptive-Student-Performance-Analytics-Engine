@@ -1,54 +1,63 @@
-const express  = require("express");
-const router   = express.Router();
-const oracledb = require("oracledb");
+const express           = require("express");
+const router            = express.Router();
+const oracledb          = require("oracledb");
 const { getConnection } = require("../db/connection");
+const { client, cacheOrFetch } = require("../cache/redisClient");
 
 // GET /api/interventions
 // Returns all interventions with student name and linked flag info
+// Cached for 30 seconds — interventions change fairly often
 router.get("/", async (req, res) => {
-  let conn;
   try {
-    conn = await getConnection();
+    const data = await cacheOrFetch("interventions:all", 30, async () => {
+      let conn;
+      try {
+        conn = await getConnection();
 
-    const sql = `
-      SELECT
-        iv.intervention_id,
-        s.name           AS student_name,
-        s.cms_id,
-        iv.int_type,
-        iv.status,
-        iv.assigned_date,
-        iv.due_date,
-        c.course_code,
-        rf.flag_type,
-        rf.severity
-      FROM INTERVENTIONS iv
-      JOIN STUDENTS  s  ON iv.student_id = s.student_id
-      JOIN RISK_FLAGS rf ON iv.flag_id   = rf.flag_id
-      LEFT JOIN COURSES c ON rf.course_id = c.course_id
-      ORDER BY
-        CASE iv.status
-          WHEN 'PENDING'     THEN 1
-          WHEN 'IN_PROGRESS' THEN 2
-          WHEN 'COMPLETED'   THEN 3
-          ELSE 4
-        END,
-        iv.assigned_date DESC
-    `;
+        const sql = `
+          SELECT
+            iv.intervention_id,
+            s.name           AS student_name,
+            s.cms_id,
+            iv.int_type,
+            iv.status,
+            iv.assigned_date,
+            iv.due_date,
+            c.course_code,
+            rf.flag_type,
+            rf.severity
+          FROM INTERVENTIONS iv
+          JOIN STUDENTS  s  ON iv.student_id = s.student_id
+          JOIN RISK_FLAGS rf ON iv.flag_id   = rf.flag_id
+          LEFT JOIN COURSES c ON rf.course_id = c.course_id
+          ORDER BY
+            CASE iv.status
+              WHEN 'PENDING'     THEN 1
+              WHEN 'IN_PROGRESS' THEN 2
+              WHEN 'COMPLETED'   THEN 3
+              ELSE 4
+            END,
+            iv.assigned_date DESC
+        `;
 
-    const result = await conn.execute(sql, {}, { outFormat: oracledb.OUT_FORMAT_OBJECT });
-    res.json({ success: true, data: result.rows });
+        const result = await conn.execute(sql, {}, { outFormat: oracledb.OUT_FORMAT_OBJECT });
+        return result.rows;
+      } finally {
+        if (conn) await conn.close();
+      }
+    });
+
+    res.json({ success: true, data });
 
   } catch (err) {
     console.error("GET /interventions error:", err);
     res.status(500).json({ success: false, message: err.message });
-  } finally {
-    if (conn) await conn.close();
   }
 });
 
 // POST /api/interventions
-// Creates a new intervention manually (calls sp_assign_intervention)
+// Creates a new intervention manually
+// After creating, deletes the interventions cache so next GET is fresh
 router.post("/", async (req, res) => {
   let conn;
   try {
@@ -62,6 +71,9 @@ router.post("/", async (req, res) => {
     );
     await conn.commit();
 
+    // Bust the cache so the next GET /interventions hits Oracle
+    await client.del("interventions:all");
+
     res.json({ success: true, message: "Intervention created." });
 
   } catch (err) {
@@ -74,6 +86,7 @@ router.post("/", async (req, res) => {
 
 // PATCH /api/interventions/:id/status
 // Updates intervention status
+// After updating, deletes the interventions cache so next GET is fresh
 router.patch("/:id/status", async (req, res) => {
   let conn;
   try {
@@ -94,6 +107,9 @@ router.patch("/:id/status", async (req, res) => {
       { status: status.toUpperCase(), notes: outcomeNotes || null, id: req.params.id }
     );
     await conn.commit();
+
+    // Bust the cache
+    await client.del("interventions:all");
 
     res.json({ success: true, message: "Status updated." });
 

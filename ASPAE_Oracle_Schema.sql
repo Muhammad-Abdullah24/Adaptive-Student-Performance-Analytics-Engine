@@ -212,7 +212,7 @@ CREATE INDEX idx_students_dept_cgpa      ON STUDENTS(dept_id, cgpa);
 -- Rubric: Performance Optimization
 -- ============================================================
 CREATE MATERIALIZED VIEW MV_COURSE_SUMMARY
-BUILD IMMEDIATE REFRESH ON COMMIT AS
+BUILD IMMEDIATE REFRESH ON DEMAND AS
 SELECT c.course_id, c.course_code, c.title,
   COUNT(DISTINCT e.student_id) AS enrolled_students,
   ROUND(AVG(aa.score),2) AS avg_score,
@@ -525,381 +525,3053 @@ GRANT INSERT ON ASSESSMENT_ATTEMPTS TO aspae_student;
 GRANT INSERT ON ATTEMPT_RESPONSES   TO aspae_student;
 GRANT EXECUTE ON sp_submit_attempt  TO aspae_student;
 
-BEGIN EXECUTE IMMEDIATE 'CREATE USER aspae_app_user IDENTIFIED BY "StrongPass123!"';
-EXCEPTION WHEN OTHERS THEN NULL; END;
-/
-GRANT CREATE SESSION TO aspae_app_user;
-GRANT aspae_admin    TO aspae_app_user;
+-- aspae_app_user creation skipped (requires sysdba, not needed for app)
 
+-- ============================================================
 -- ============================================================
 -- SECTION 9: SEED DATA
 -- ============================================================
-INSERT ALL
-  INTO DEPARTMENTS(dept_code,dept_name,hod_name) VALUES('CS','Department of Computer Science','Prof. Dr. Amir Mehmood')
-  INTO DEPARTMENTS(dept_code,dept_name,hod_name) VALUES('EE','Department of Electrical Engineering','Prof. Dr. Khalid Rashid')
-  INTO DEPARTMENTS(dept_code,dept_name,hod_name) VALUES('CE','Department of Computer Engineering','Prof. Dr. Nadia Malik')
-  INTO DEPARTMENTS(dept_code,dept_name,hod_name) VALUES('SE','School of Electrical Engineering and Computer Science','Prof. Dr. Farrukh Salim')
-  INTO DEPARTMENTS(dept_code,dept_name,hod_name) VALUES('AI','Department of Artificial Intelligence','Prof. Dr. Sana Qadir')
-SELECT * FROM DUAL;
-COMMIT;
 
-INSERT ALL
-  INTO INSTRUCTORS(dept_id,name,email,designation) VALUES(1,'Dr. Ayesha Hakim','ayesha.hakim@seecs.nust.edu.pk','Associate Professor')
-  INTO INSTRUCTORS(dept_id,name,email,designation) VALUES(1,'Dr. Naima Iltaf','naima.iltaf@seecs.nust.edu.pk','Professor')
-  INTO INSTRUCTORS(dept_id,name,email,designation) VALUES(1,'Dr. Irfan Khan','irfan.khan@seecs.nust.edu.pk','Associate Professor')
-  INTO INSTRUCTORS(dept_id,name,email,designation) VALUES(2,'Dr. Sara Ahmed','sara.ahmed@seecs.nust.edu.pk','Associate Professor')
-  INTO INSTRUCTORS(dept_id,name,email,designation) VALUES(1,'Dr. Zain Ul Abdin','zain.abdin@seecs.nust.edu.pk','Associate Professor')
-  INTO INSTRUCTORS(dept_id,name,email,designation) VALUES(3,'Dr. Tariq Mehmood','tariq.mehmood@seecs.nust.edu.pk','Professor')
-  INTO INSTRUCTORS(dept_id,name,email,designation) VALUES(4,'Dr. Rabia Khalid','rabia.khalid@seecs.nust.edu.pk','Lecturer')
-  INTO INSTRUCTORS(dept_id,name,email,designation) VALUES(5,'Dr. Usman Qadir','usman.qadir@seecs.nust.edu.pk','Associate Professor')
-SELECT * FROM DUAL;
-COMMIT;
+-- DEPARTMENTS
+insert into departments (
+   dept_code,
+   dept_name,
+   hod_name
+) values ( 'CS',
+           'Department of Computer Science',
+           'Prof. Dr. Amir Mehmood' );
+insert into departments (
+   dept_code,
+   dept_name,
+   hod_name
+) values ( 'EE',
+           'Department of Electrical Engineering',
+           'Prof. Dr. Khalid Rashid' );
+insert into departments (
+   dept_code,
+   dept_name,
+   hod_name
+) values ( 'CE',
+           'Department of Computer Engineering',
+           'Prof. Dr. Nadia Malik' );
+insert into departments (
+   dept_code,
+   dept_name,
+   hod_name
+) values ( 'SE',
+           'School of Electrical Engineering and Computer Science',
+           'Prof. Dr. Farrukh Salim' );
+insert into departments (
+   dept_code,
+   dept_name,
+   hod_name
+) values ( 'AI',
+           'Department of Artificial Intelligence',
+           'Prof. Dr. Sana Qadir' );
+commit;
 
-INSERT ALL
-  INTO COURSES(dept_id,instructor_id,course_code,title,credit_hours,max_absences) VALUES(1,1,'CS-236','Advanced Database Management Systems',3,6)
-  INTO COURSES(dept_id,instructor_id,course_code,title,credit_hours,max_absences) VALUES(1,2,'CS-343','Web Technologies',3,6)
-  INTO COURSES(dept_id,instructor_id,course_code,title,credit_hours,max_absences) VALUES(1,3,'CS-301','Operating Systems',3,15)
-  INTO COURSES(dept_id,instructor_id,course_code,title,credit_hours,max_absences) VALUES(2,4,'EE-201','Circuit Analysis',3,6)
-  INTO COURSES(dept_id,instructor_id,course_code,title,credit_hours,max_absences) VALUES(1,5,'CS-401','Machine Learning',3,6)
-  INTO COURSES(dept_id,instructor_id,course_code,title,credit_hours,max_absences) VALUES(4,7,'SE-201','Software Engineering',3,6)
-  INTO COURSES(dept_id,instructor_id,course_code,title,credit_hours,max_absences) VALUES(5,8,'AI-301','Artificial Intelligence',3,6)
-  INTO COURSES(dept_id,instructor_id,course_code,title,credit_hours,max_absences) VALUES(1,3,'CS-211','Data Structures',3,6)
-SELECT * FROM DUAL;
-COMMIT;
+-- INSTRUCTORS (use subquery to get dept_id by code)
+insert into instructors (
+   dept_id,
+   name,
+   email,
+   designation
+) values ( (
+   select dept_id
+     from departments
+    where dept_code = 'CS'
+),
+           'Dr. Ayesha Hakim',
+           'ayesha.hakim@seecs.nust.edu.pk',
+           'Associate Professor' );
+insert into instructors (
+   dept_id,
+   name,
+   email,
+   designation
+) values ( (
+   select dept_id
+     from departments
+    where dept_code = 'CS'
+),
+           'Dr. Naima Iltaf',
+           'naima.iltaf@seecs.nust.edu.pk',
+           'Professor' );
+insert into instructors (
+   dept_id,
+   name,
+   email,
+   designation
+) values ( (
+   select dept_id
+     from departments
+    where dept_code = 'CS'
+),
+           'Dr. Irfan Khan',
+           'irfan.khan@seecs.nust.edu.pk',
+           'Associate Professor' );
+insert into instructors (
+   dept_id,
+   name,
+   email,
+   designation
+) values ( (
+   select dept_id
+     from departments
+    where dept_code = 'EE'
+),
+           'Dr. Sara Ahmed',
+           'sara.ahmed@seecs.nust.edu.pk',
+           'Associate Professor' );
+insert into instructors (
+   dept_id,
+   name,
+   email,
+   designation
+) values ( (
+   select dept_id
+     from departments
+    where dept_code = 'CS'
+),
+           'Dr. Zain Ul Abdin',
+           'zain.abdin@seecs.nust.edu.pk',
+           'Associate Professor' );
+insert into instructors (
+   dept_id,
+   name,
+   email,
+   designation
+) values ( (
+   select dept_id
+     from departments
+    where dept_code = 'CE'
+),
+           'Dr. Tariq Mehmood',
+           'tariq.mehmood@seecs.nust.edu.pk',
+           'Professor' );
+insert into instructors (
+   dept_id,
+   name,
+   email,
+   designation
+) values ( (
+   select dept_id
+     from departments
+    where dept_code = 'SE'
+),
+           'Dr. Rabia Khalid',
+           'rabia.khalid@seecs.nust.edu.pk',
+           'Lecturer' );
+insert into instructors (
+   dept_id,
+   name,
+   email,
+   designation
+) values ( (
+   select dept_id
+     from departments
+    where dept_code = 'AI'
+),
+           'Dr. Usman Qadir',
+           'usman.qadir@seecs.nust.edu.pk',
+           'Associate Professor' );
+commit;
 
--- 8 core students matching mock data
-INSERT ALL
-  INTO STUDENTS(dept_id,cms_id,name,email,cgpa,semester,risk_level) VALUES(1,'502895','Aisha Malik','aisha.malik@stud.nust.edu.pk',3.72,6,'LOW')
-  INTO STUDENTS(dept_id,cms_id,name,email,cgpa,semester,risk_level) VALUES(1,'503012','Omar Tariq','omar.tariq@stud.nust.edu.pk',2.41,4,'CRITICAL')
-  INTO STUDENTS(dept_id,cms_id,name,email,cgpa,semester,risk_level) VALUES(2,'503145','Zara Hussain','zara.hussain@stud.nust.edu.pk',3.15,5,'MEDIUM')
-  INTO STUDENTS(dept_id,cms_id,name,email,cgpa,semester,risk_level) VALUES(1,'503278','Bilal Khan','bilal.khan@stud.nust.edu.pk',1.89,3,'CRITICAL')
-  INTO STUDENTS(dept_id,cms_id,name,email,cgpa,semester,risk_level) VALUES(3,'503411','Fatima Noor','fatima.noor@stud.nust.edu.pk',3.90,7,'LOW')
-  INTO STUDENTS(dept_id,cms_id,name,email,cgpa,semester,risk_level) VALUES(2,'503544','Hassan Raza','hassan.raza@stud.nust.edu.pk',2.78,4,'MEDIUM')
-  INTO STUDENTS(dept_id,cms_id,name,email,cgpa,semester,risk_level) VALUES(1,'503677','Sana Ijaz','sana.ijaz@stud.nust.edu.pk',3.55,6,'LOW')
-  INTO STUDENTS(dept_id,cms_id,name,email,cgpa,semester,risk_level) VALUES(3,'503810','Usman Shah','usman.shah@stud.nust.edu.pk',2.10,5,'HIGH')
-SELECT * FROM DUAL;
-COMMIT;
+-- COURSES (use subqueries for dept_id and instructor_id by email)
+insert into courses (
+   dept_id,
+   instructor_id,
+   course_code,
+   title,
+   credit_hours,
+   max_absences
+) values ( (
+   select dept_id
+     from departments
+    where dept_code = 'CS'
+),
+           (
+              select instructor_id
+                from instructors
+               where email = 'ayesha.hakim@seecs.nust.edu.pk'
+           ),
+           'CS-236',
+           'Advanced Database Management Systems',
+           3,
+           6 );
+insert into courses (
+   dept_id,
+   instructor_id,
+   course_code,
+   title,
+   credit_hours,
+   max_absences
+) values ( (
+   select dept_id
+     from departments
+    where dept_code = 'CS'
+),
+           (
+              select instructor_id
+                from instructors
+               where email = 'naima.iltaf@seecs.nust.edu.pk'
+           ),
+           'CS-343',
+           'Web Technologies',
+           3,
+           6 );
+insert into courses (
+   dept_id,
+   instructor_id,
+   course_code,
+   title,
+   credit_hours,
+   max_absences
+) values ( (
+   select dept_id
+     from departments
+    where dept_code = 'CS'
+),
+           (
+              select instructor_id
+                from instructors
+               where email = 'irfan.khan@seecs.nust.edu.pk'
+           ),
+           'CS-301',
+           'Operating Systems',
+           3,
+           15 );
+insert into courses (
+   dept_id,
+   instructor_id,
+   course_code,
+   title,
+   credit_hours,
+   max_absences
+) values ( (
+   select dept_id
+     from departments
+    where dept_code = 'EE'
+),
+           (
+              select instructor_id
+                from instructors
+               where email = 'sara.ahmed@seecs.nust.edu.pk'
+           ),
+           'EE-201',
+           'Circuit Analysis',
+           3,
+           6 );
+insert into courses (
+   dept_id,
+   instructor_id,
+   course_code,
+   title,
+   credit_hours,
+   max_absences
+) values ( (
+   select dept_id
+     from departments
+    where dept_code = 'CS'
+),
+           (
+              select instructor_id
+                from instructors
+               where email = 'zain.abdin@seecs.nust.edu.pk'
+           ),
+           'CS-401',
+           'Machine Learning',
+           3,
+           6 );
+insert into courses (
+   dept_id,
+   instructor_id,
+   course_code,
+   title,
+   credit_hours,
+   max_absences
+) values ( (
+   select dept_id
+     from departments
+    where dept_code = 'SE'
+),
+           (
+              select instructor_id
+                from instructors
+               where email = 'rabia.khalid@seecs.nust.edu.pk'
+           ),
+           'SE-201',
+           'Software Engineering',
+           3,
+           6 );
+insert into courses (
+   dept_id,
+   instructor_id,
+   course_code,
+   title,
+   credit_hours,
+   max_absences
+) values ( (
+   select dept_id
+     from departments
+    where dept_code = 'AI'
+),
+           (
+              select instructor_id
+                from instructors
+               where email = 'usman.qadir@seecs.nust.edu.pk'
+           ),
+           'AI-301',
+           'Artificial Intelligence',
+           3,
+           6 );
+insert into courses (
+   dept_id,
+   instructor_id,
+   course_code,
+   title,
+   credit_hours,
+   max_absences
+) values ( (
+   select dept_id
+     from departments
+    where dept_code = 'CS'
+),
+           (
+              select instructor_id
+                from instructors
+               where email = 'irfan.khan@seecs.nust.edu.pk'
+           ),
+           'CS-211',
+           'Data Structures',
+           3,
+           6 );
+commit;
 
--- 52 additional students (PL/SQL loop with realistic risk distribution)
-BEGIN
-  DECLARE
-    TYPE t_rec IS RECORD(d NUMBER,c VARCHAR2(10),n VARCHAR2(50),e VARCHAR2(80),g NUMBER,s NUMBER,r VARCHAR2(10));
-    TYPE t_tab IS TABLE OF t_rec INDEX BY PLS_INTEGER;
-    v_tab t_tab;
-    i PLS_INTEGER:=1;
-    PROCEDURE add(d NUMBER,c VARCHAR2,n VARCHAR2,e VARCHAR2,g NUMBER,sm NUMBER,r VARCHAR2) IS BEGIN
-      v_tab(i).d:=d; v_tab(i).c:=c; v_tab(i).n:=n; v_tab(i).e:=e;
-      v_tab(i).g:=g; v_tab(i).s:=sm; v_tab(i).r:=r; i:=i+1;
-    END;
-  BEGIN
-    add(1,'504001','Maryam Arif','maryam.arif@stud.nust.edu.pk',3.65,5,'LOW');
-    add(1,'504002','Talha Qureshi','talha.qureshi@stud.nust.edu.pk',2.95,4,'MEDIUM');
-    add(2,'504003','Nadia Bashir','nadia.bashir@stud.nust.edu.pk',3.40,6,'LOW');
-    add(3,'504004','Kamran Ali','kamran.ali@stud.nust.edu.pk',1.75,2,'CRITICAL');
-    add(1,'504005','Hira Baig','hira.baig@stud.nust.edu.pk',3.80,7,'LOW');
-    add(4,'504006','Asad Rehman','asad.rehman@stud.nust.edu.pk',2.55,3,'HIGH');
-    add(5,'504007','Rabia Siddiqui','rabia.siddiqui@stud.nust.edu.pk',3.20,5,'LOW');
-    add(1,'504008','Zubair Akhtar','zubair.akhtar@stud.nust.edu.pk',3.55,6,'LOW');
-    add(2,'504009','Amna Sheikh','amna.sheikh@stud.nust.edu.pk',2.70,4,'MEDIUM');
-    add(3,'504010','Faisal Mehmood','faisal.mehmood@stud.nust.edu.pk',3.10,5,'LOW');
-    add(1,'504011','Saima Nawaz','saima.nawaz@stud.nust.edu.pk',1.60,2,'CRITICAL');
-    add(4,'504012','Adeel Chaudhry','adeel.chaudhry@stud.nust.edu.pk',3.75,7,'LOW');
-    add(1,'504013','Sobia Iqbal','sobia.iqbal@stud.nust.edu.pk',2.88,4,'MEDIUM');
-    add(2,'504014','Imran Hussain','imran.hussain@stud.nust.edu.pk',3.30,5,'LOW');
-    add(5,'504015','Kiran Zaidi','kiran.zaidi@stud.nust.edu.pk',2.45,3,'HIGH');
-    add(1,'504016','Waseem Butt','waseem.butt@stud.nust.edu.pk',3.90,8,'LOW');
-    add(3,'504017','Lubna Malik','lubna.malik@stud.nust.edu.pk',2.60,4,'MEDIUM');
-    add(4,'504018','Tariq Abbasi','tariq.abbasi@stud.nust.edu.pk',3.15,5,'LOW');
-    add(1,'504019','Naila Ahmad','naila.ahmad@stud.nust.edu.pk',1.95,3,'CRITICAL');
-    add(2,'504020','Rizwan Javed','rizwan.javed@stud.nust.edu.pk',3.50,6,'LOW');
-    add(1,'504021','Anam Farooq','anam.farooq@stud.nust.edu.pk',2.35,3,'HIGH');
-    add(5,'504022','Shahid Latif','shahid.latif@stud.nust.edu.pk',3.60,6,'LOW');
-    add(3,'504023','Mariam Yusuf','mariam.yusuf@stud.nust.edu.pk',3.05,4,'MEDIUM');
-    add(1,'504024','Jahangir Baig','jahangir.baig@stud.nust.edu.pk',3.70,7,'LOW');
-    add(2,'504025','Farah Naz','farah.naz@stud.nust.edu.pk',2.80,5,'MEDIUM');
-    add(4,'504026','Salman Gul','salman.gul@stud.nust.edu.pk',1.50,2,'CRITICAL');
-    add(1,'504027','Ifrah Karim','ifrah.karim@stud.nust.edu.pk',3.85,7,'LOW');
-    add(3,'504028','Mohsin Raza','mohsin.raza@stud.nust.edu.pk',2.90,5,'MEDIUM');
-    add(1,'504029','Sehrish Waqar','sehrish.waqar@stud.nust.edu.pk',3.45,6,'LOW');
-    add(5,'504030','Bilal Anwar','bilal.anwar@stud.nust.edu.pk',2.20,3,'HIGH');
-    add(2,'504031','Ayesha Riaz','ayesha.riaz@stud.nust.edu.pk',3.25,5,'LOW');
-    add(1,'504032','Hamza Zafar','hamza.zafar@stud.nust.edu.pk',2.65,4,'MEDIUM');
-    add(4,'504033','Iqra Sultan','iqra.sultan@stud.nust.edu.pk',3.55,6,'LOW');
-    add(3,'504034','Farhan Chohan','farhan.chohan@stud.nust.edu.pk',2.10,3,'HIGH');
-    add(1,'504035','Sadaf Mirza','sadaf.mirza@stud.nust.edu.pk',3.60,6,'LOW');
-    add(2,'504036','Umer Nasir','umer.nasir@stud.nust.edu.pk',3.00,4,'MEDIUM');
-    add(5,'504037','Amber Gillani','amber.gillani@stud.nust.edu.pk',3.40,5,'LOW');
-    add(1,'504038','Umar Farooq','umar.farooq@stud.nust.edu.pk',1.80,2,'CRITICAL');
-    add(3,'504039','Hajra Khawaja','hajra.khawaja@stud.nust.edu.pk',3.70,7,'LOW');
-    add(4,'504040','Nabeel Ahmad','nabeel.ahmad@stud.nust.edu.pk',2.55,3,'HIGH');
-    add(1,'504041','Tahira Saleem','tahira.saleem@stud.nust.edu.pk',3.30,5,'LOW');
-    add(2,'504042','Jawad Rashid','jawad.rashid@stud.nust.edu.pk',2.75,4,'MEDIUM');
-    add(5,'504043','Madiha Saeed','madiha.saeed@stud.nust.edu.pk',3.55,6,'LOW');
-    add(1,'504044','Shehroz Dar','shehroz.dar@stud.nust.edu.pk',2.40,3,'HIGH');
-    add(3,'504045','Komal Tanvir','komal.tanvir@stud.nust.edu.pk',3.80,7,'LOW');
-    add(4,'504046','Daniyal Aziz','daniyal.aziz@stud.nust.edu.pk',3.10,4,'LOW');
-    add(1,'504047','Zainab Haider','zainab.haider@stud.nust.edu.pk',2.85,5,'MEDIUM');
-    add(2,'504048','Ali Hassan','ali.hassan@stud.nust.edu.pk',3.65,6,'LOW');
-    add(5,'504049','Rida Malik','rida.malik@stud.nust.edu.pk',3.20,5,'LOW');
-    add(1,'504050','Owais Abbasi','owais.abbasi@stud.nust.edu.pk',2.60,4,'MEDIUM');
-    add(3,'504051','Sadia Noor','sadia.noor@stud.nust.edu.pk',3.75,7,'LOW');
-    add(1,'504052','Fawad Cheema','fawad.cheema@stud.nust.edu.pk',3.50,6,'LOW');
-    FOR j IN 1..v_tab.COUNT LOOP
-      INSERT INTO STUDENTS(dept_id,cms_id,name,email,cgpa,semester,risk_level)
-      VALUES(v_tab(j).d,v_tab(j).c,v_tab(j).n,v_tab(j).e,v_tab(j).g,v_tab(j).s,v_tab(j).r);
-    END LOOP;
-  END;
-  COMMIT;
-END;
+-- STUDENTS (8 core students)
+insert into students (
+   dept_id,
+   cms_id,
+   name,
+   email,
+   cgpa,
+   semester,
+   risk_level
+) values ( (
+   select dept_id
+     from departments
+    where dept_code = 'CS'
+),
+           '502895',
+           'Aisha Malik',
+           'aisha.malik@stud.nust.edu.pk',
+           3.72,
+           6,
+           'LOW' );
+insert into students (
+   dept_id,
+   cms_id,
+   name,
+   email,
+   cgpa,
+   semester,
+   risk_level
+) values ( (
+   select dept_id
+     from departments
+    where dept_code = 'CS'
+),
+           '503012',
+           'Omar Tariq',
+           'omar.tariq@stud.nust.edu.pk',
+           2.41,
+           4,
+           'CRITICAL' );
+insert into students (
+   dept_id,
+   cms_id,
+   name,
+   email,
+   cgpa,
+   semester,
+   risk_level
+) values ( (
+   select dept_id
+     from departments
+    where dept_code = 'EE'
+),
+           '503145',
+           'Zara Hussain',
+           'zara.hussain@stud.nust.edu.pk',
+           3.15,
+           5,
+           'MEDIUM' );
+insert into students (
+   dept_id,
+   cms_id,
+   name,
+   email,
+   cgpa,
+   semester,
+   risk_level
+) values ( (
+   select dept_id
+     from departments
+    where dept_code = 'CS'
+),
+           '503278',
+           'Bilal Khan',
+           'bilal.khan@stud.nust.edu.pk',
+           1.89,
+           3,
+           'CRITICAL' );
+insert into students (
+   dept_id,
+   cms_id,
+   name,
+   email,
+   cgpa,
+   semester,
+   risk_level
+) values ( (
+   select dept_id
+     from departments
+    where dept_code = 'CE'
+),
+           '503411',
+           'Fatima Noor',
+           'fatima.noor@stud.nust.edu.pk',
+           3.90,
+           7,
+           'LOW' );
+insert into students (
+   dept_id,
+   cms_id,
+   name,
+   email,
+   cgpa,
+   semester,
+   risk_level
+) values ( (
+   select dept_id
+     from departments
+    where dept_code = 'EE'
+),
+           '503544',
+           'Hassan Raza',
+           'hassan.raza@stud.nust.edu.pk',
+           2.78,
+           4,
+           'MEDIUM' );
+insert into students (
+   dept_id,
+   cms_id,
+   name,
+   email,
+   cgpa,
+   semester,
+   risk_level
+) values ( (
+   select dept_id
+     from departments
+    where dept_code = 'CS'
+),
+           '503677',
+           'Sana Ijaz',
+           'sana.ijaz@stud.nust.edu.pk',
+           3.55,
+           6,
+           'LOW' );
+insert into students (
+   dept_id,
+   cms_id,
+   name,
+   email,
+   cgpa,
+   semester,
+   risk_level
+) values ( (
+   select dept_id
+     from departments
+    where dept_code = 'CE'
+),
+           '503810',
+           'Usman Shah',
+           'usman.shah@stud.nust.edu.pk',
+           2.10,
+           5,
+           'HIGH' );
+commit;
+
+-- STUDENTS (52 additional)
+begin
+   declare
+      type t_rec is record (
+            d varchar2(5),
+            c varchar2(10),
+            n varchar2(50),
+            e varchar2(80),
+            g number,
+            s number,
+            r varchar2(10)
+      );
+      type t_tab is
+         table of t_rec index by pls_integer;
+      v_tab t_tab;
+      i     pls_integer := 1;
+      procedure add (
+         d  varchar2,
+         c  varchar2,
+         n  varchar2,
+         e  varchar2,
+         g  number,
+         sm number,
+         r  varchar2
+      ) is
+      begin
+         v_tab(i).d := d;
+         v_tab(i).c := c;
+         v_tab(i).n := n;
+         v_tab(i).e := e;
+         v_tab(i).g := g;
+         v_tab(i).s := sm;
+         v_tab(i).r := r;
+         i := i + 1;
+      end;
+   begin
+      add(
+         'CS',
+         '504001',
+         'Maryam Arif',
+         'maryam.arif@stud.nust.edu.pk',
+         3.65,
+         5,
+         'LOW'
+      );
+      add(
+         'CS',
+         '504002',
+         'Talha Qureshi',
+         'talha.qureshi@stud.nust.edu.pk',
+         2.95,
+         4,
+         'MEDIUM'
+      );
+      add(
+         'EE',
+         '504003',
+         'Nadia Bashir',
+         'nadia.bashir@stud.nust.edu.pk',
+         3.40,
+         6,
+         'LOW'
+      );
+      add(
+         'CE',
+         '504004',
+         'Kamran Ali',
+         'kamran.ali@stud.nust.edu.pk',
+         1.75,
+         2,
+         'CRITICAL'
+      );
+      add(
+         'CS',
+         '504005',
+         'Hira Baig',
+         'hira.baig@stud.nust.edu.pk',
+         3.80,
+         7,
+         'LOW'
+      );
+      add(
+         'SE',
+         '504006',
+         'Asad Rehman',
+         'asad.rehman@stud.nust.edu.pk',
+         2.55,
+         3,
+         'HIGH'
+      );
+      add(
+         'AI',
+         '504007',
+         'Rabia Siddiqui',
+         'rabia.siddiqui@stud.nust.edu.pk',
+         3.20,
+         5,
+         'LOW'
+      );
+      add(
+         'CS',
+         '504008',
+         'Zubair Akhtar',
+         'zubair.akhtar@stud.nust.edu.pk',
+         3.55,
+         6,
+         'LOW'
+      );
+      add(
+         'EE',
+         '504009',
+         'Amna Sheikh',
+         'amna.sheikh@stud.nust.edu.pk',
+         2.70,
+         4,
+         'MEDIUM'
+      );
+      add(
+         'CE',
+         '504010',
+         'Faisal Mehmood',
+         'faisal.mehmood@stud.nust.edu.pk',
+         3.10,
+         5,
+         'LOW'
+      );
+      add(
+         'CS',
+         '504011',
+         'Saima Nawaz',
+         'saima.nawaz@stud.nust.edu.pk',
+         1.60,
+         2,
+         'CRITICAL'
+      );
+      add(
+         'SE',
+         '504012',
+         'Adeel Chaudhry',
+         'adeel.chaudhry@stud.nust.edu.pk',
+         3.75,
+         7,
+         'LOW'
+      );
+      add(
+         'CS',
+         '504013',
+         'Sobia Iqbal',
+         'sobia.iqbal@stud.nust.edu.pk',
+         2.88,
+         4,
+         'MEDIUM'
+      );
+      add(
+         'EE',
+         '504014',
+         'Imran Hussain',
+         'imran.hussain@stud.nust.edu.pk',
+         3.30,
+         5,
+         'LOW'
+      );
+      add(
+         'AI',
+         '504015',
+         'Kiran Zaidi',
+         'kiran.zaidi@stud.nust.edu.pk',
+         2.45,
+         3,
+         'HIGH'
+      );
+      add(
+         'CS',
+         '504016',
+         'Waseem Butt',
+         'waseem.butt@stud.nust.edu.pk',
+         3.90,
+         8,
+         'LOW'
+      );
+      add(
+         'CE',
+         '504017',
+         'Lubna Malik',
+         'lubna.malik@stud.nust.edu.pk',
+         2.60,
+         4,
+         'MEDIUM'
+      );
+      add(
+         'SE',
+         '504018',
+         'Tariq Abbasi',
+         'tariq.abbasi@stud.nust.edu.pk',
+         3.15,
+         5,
+         'LOW'
+      );
+      add(
+         'CS',
+         '504019',
+         'Naila Ahmad',
+         'naila.ahmad@stud.nust.edu.pk',
+         1.95,
+         3,
+         'CRITICAL'
+      );
+      add(
+         'EE',
+         '504020',
+         'Rizwan Javed',
+         'rizwan.javed@stud.nust.edu.pk',
+         3.50,
+         6,
+         'LOW'
+      );
+      add(
+         'CS',
+         '504021',
+         'Anam Farooq',
+         'anam.farooq@stud.nust.edu.pk',
+         2.35,
+         3,
+         'HIGH'
+      );
+      add(
+         'AI',
+         '504022',
+         'Shahid Latif',
+         'shahid.latif@stud.nust.edu.pk',
+         3.60,
+         6,
+         'LOW'
+      );
+      add(
+         'CE',
+         '504023',
+         'Mariam Yusuf',
+         'mariam.yusuf@stud.nust.edu.pk',
+         3.05,
+         4,
+         'MEDIUM'
+      );
+      add(
+         'CS',
+         '504024',
+         'Jahangir Baig',
+         'jahangir.baig@stud.nust.edu.pk',
+         3.70,
+         7,
+         'LOW'
+      );
+      add(
+         'EE',
+         '504025',
+         'Farah Naz',
+         'farah.naz@stud.nust.edu.pk',
+         2.80,
+         5,
+         'MEDIUM'
+      );
+      add(
+         'SE',
+         '504026',
+         'Salman Gul',
+         'salman.gul@stud.nust.edu.pk',
+         1.50,
+         2,
+         'CRITICAL'
+      );
+      add(
+         'CS',
+         '504027',
+         'Ifrah Karim',
+         'ifrah.karim@stud.nust.edu.pk',
+         3.85,
+         7,
+         'LOW'
+      );
+      add(
+         'CE',
+         '504028',
+         'Mohsin Raza',
+         'mohsin.raza@stud.nust.edu.pk',
+         2.90,
+         5,
+         'MEDIUM'
+      );
+      add(
+         'CS',
+         '504029',
+         'Sehrish Waqar',
+         'sehrish.waqar@stud.nust.edu.pk',
+         3.45,
+         6,
+         'LOW'
+      );
+      add(
+         'AI',
+         '504030',
+         'Bilal Anwar',
+         'bilal.anwar@stud.nust.edu.pk',
+         2.20,
+         3,
+         'HIGH'
+      );
+      add(
+         'EE',
+         '504031',
+         'Ayesha Riaz',
+         'ayesha.riaz@stud.nust.edu.pk',
+         3.25,
+         5,
+         'LOW'
+      );
+      add(
+         'CS',
+         '504032',
+         'Hamza Zafar',
+         'hamza.zafar@stud.nust.edu.pk',
+         2.65,
+         4,
+         'MEDIUM'
+      );
+      add(
+         'SE',
+         '504033',
+         'Iqra Sultan',
+         'iqra.sultan@stud.nust.edu.pk',
+         3.55,
+         6,
+         'LOW'
+      );
+      add(
+         'CE',
+         '504034',
+         'Farhan Chohan',
+         'farhan.chohan@stud.nust.edu.pk',
+         2.10,
+         3,
+         'HIGH'
+      );
+      add(
+         'CS',
+         '504035',
+         'Sadaf Mirza',
+         'sadaf.mirza@stud.nust.edu.pk',
+         3.60,
+         6,
+         'LOW'
+      );
+      add(
+         'EE',
+         '504036',
+         'Umer Nasir',
+         'umer.nasir@stud.nust.edu.pk',
+         3.00,
+         4,
+         'MEDIUM'
+      );
+      add(
+         'AI',
+         '504037',
+         'Amber Gillani',
+         'amber.gillani@stud.nust.edu.pk',
+         3.40,
+         5,
+         'LOW'
+      );
+      add(
+         'CS',
+         '504038',
+         'Umar Farooq',
+         'umar.farooq@stud.nust.edu.pk',
+         1.80,
+         2,
+         'CRITICAL'
+      );
+      add(
+         'CE',
+         '504039',
+         'Hajra Khawaja',
+         'hajra.khawaja@stud.nust.edu.pk',
+         3.70,
+         7,
+         'LOW'
+      );
+      add(
+         'SE',
+         '504040',
+         'Nabeel Ahmad',
+         'nabeel.ahmad@stud.nust.edu.pk',
+         2.55,
+         3,
+         'HIGH'
+      );
+      add(
+         'CS',
+         '504041',
+         'Tahira Saleem',
+         'tahira.saleem@stud.nust.edu.pk',
+         3.30,
+         5,
+         'LOW'
+      );
+      add(
+         'EE',
+         '504042',
+         'Jawad Rashid',
+         'jawad.rashid@stud.nust.edu.pk',
+         2.75,
+         4,
+         'MEDIUM'
+      );
+      add(
+         'AI',
+         '504043',
+         'Madiha Saeed',
+         'madiha.saeed@stud.nust.edu.pk',
+         3.55,
+         6,
+         'LOW'
+      );
+      add(
+         'CS',
+         '504044',
+         'Shehroz Dar',
+         'shehroz.dar@stud.nust.edu.pk',
+         2.40,
+         3,
+         'HIGH'
+      );
+      add(
+         'CE',
+         '504045',
+         'Komal Tanvir',
+         'komal.tanvir@stud.nust.edu.pk',
+         3.80,
+         7,
+         'LOW'
+      );
+      add(
+         'SE',
+         '504046',
+         'Daniyal Aziz',
+         'daniyal.aziz@stud.nust.edu.pk',
+         3.10,
+         4,
+         'LOW'
+      );
+      add(
+         'CS',
+         '504047',
+         'Zainab Haider',
+         'zainab.haider@stud.nust.edu.pk',
+         2.85,
+         5,
+         'MEDIUM'
+      );
+      add(
+         'EE',
+         '504048',
+         'Ali Hassan',
+         'ali.hassan@stud.nust.edu.pk',
+         3.65,
+         6,
+         'LOW'
+      );
+      add(
+         'AI',
+         '504049',
+         'Rida Malik',
+         'rida.malik@stud.nust.edu.pk',
+         3.20,
+         5,
+         'LOW'
+      );
+      add(
+         'CS',
+         '504050',
+         'Owais Abbasi',
+         'owais.abbasi@stud.nust.edu.pk',
+         2.60,
+         4,
+         'MEDIUM'
+      );
+      add(
+         'CE',
+         '504051',
+         'Sadia Noor',
+         'sadia.noor@stud.nust.edu.pk',
+         3.75,
+         7,
+         'LOW'
+      );
+      add(
+         'CS',
+         '504052',
+         'Fawad Cheema',
+         'fawad.cheema@stud.nust.edu.pk',
+         3.50,
+         6,
+         'LOW'
+      );
+      for j in 1..v_tab.count loop
+         insert into students (
+            dept_id,
+            cms_id,
+            name,
+            email,
+            cgpa,
+            semester,
+            risk_level
+         ) values ( (
+            select dept_id
+              from departments
+             where dept_code = v_tab(j).d
+         ),
+                    v_tab(j).c,
+                    v_tab(j).n,
+                    v_tab(j).e,
+                    v_tab(j).g,
+                    v_tab(j).s,
+                    v_tab(j).r );
+      end loop;
+   end;
+   commit;
+end;
 /
 
--- Topics: 8 per course (64 total) via INSERT ALL
-INSERT ALL
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(1,'SQL Joins','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(1,'Normalization','HARD')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(1,'B+ Trees','HARD')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(1,'Triggers & PL/SQL','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(1,'Window Functions','HARD')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(1,'Indexing & Hashing','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(1,'Transaction Management','EASY')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(1,'ERD Design','EASY')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(2,'HTML & CSS','EASY')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(2,'JavaScript Basics','EASY')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(2,'React Components','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(2,'REST APIs','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(2,'Node.js','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(2,'Authentication','HARD')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(2,'Database Integration','HARD')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(2,'Deployment','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(3,'Process Management','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(3,'Memory Management','HARD')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(3,'File Systems','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(3,'CPU Scheduling','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(3,'Deadlocks','HARD')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(3,'Synchronization','HARD')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(3,'Virtual Memory','HARD')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(3,'I/O Systems','EASY')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(4,'Ohms Law','EASY')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(4,'Kirchhoffs Laws','EASY')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(4,'AC Circuits','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(4,'Thevenin Norton','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(4,'RLC Circuits','HARD')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(4,'Phasors','HARD')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(4,'Power Analysis','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(4,'Filters','HARD')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(5,'Linear Regression','EASY')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(5,'Classification','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(5,'Neural Networks','HARD')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(5,'Feature Engineering','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(5,'Model Evaluation','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(5,'Clustering','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(5,'Deep Learning','HARD')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(5,'NLP Basics','HARD')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(6,'Requirements Engineering','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(6,'UML Diagrams','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(6,'Agile Methods','EASY')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(6,'Design Patterns','HARD')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(6,'Testing Strategies','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(6,'Project Management','EASY')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(6,'Software Architecture','HARD')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(6,'DevOps Basics','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(7,'Search Algorithms','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(7,'Knowledge Representation','HARD')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(7,'Planning','HARD')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(7,'Bayesian Networks','HARD')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(7,'Game Theory','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(7,'Expert Systems','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(7,'Computer Vision','HARD')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(7,'NLP','HARD')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(8,'Arrays & Linked Lists','EASY')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(8,'Stacks & Queues','EASY')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(8,'Trees & Heaps','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(8,'Graphs','HARD')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(8,'Sorting Algorithms','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(8,'Hash Tables','MEDIUM')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(8,'Dynamic Programming','HARD')
-  INTO TOPICS(course_id,topic_name,difficulty_level) VALUES(8,'Complexity Analysis','MEDIUM')
-SELECT * FROM DUAL;
-COMMIT;
+-- TOPICS (use subquery for course_id by course_code)
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-236'
+),
+           'SQL Joins',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-236'
+),
+           'Normalization',
+           'HARD' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-236'
+),
+           'B+ Trees',
+           'HARD' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-236'
+),
+           'Triggers and PLSQL',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-236'
+),
+           'Window Functions',
+           'HARD' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-236'
+),
+           'Indexing and Hashing',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-236'
+),
+           'Transaction Management',
+           'EASY' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-236'
+),
+           'ERD Design',
+           'EASY' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-343'
+),
+           'HTML and CSS',
+           'EASY' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-343'
+),
+           'JavaScript Basics',
+           'EASY' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-343'
+),
+           'React Components',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-343'
+),
+           'REST APIs',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-343'
+),
+           'Node.js',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-343'
+),
+           'Authentication',
+           'HARD' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-343'
+),
+           'Database Integration',
+           'HARD' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-343'
+),
+           'Deployment',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-301'
+),
+           'Process Management',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-301'
+),
+           'Memory Management',
+           'HARD' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-301'
+),
+           'File Systems',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-301'
+),
+           'CPU Scheduling',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-301'
+),
+           'Deadlocks',
+           'HARD' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-301'
+),
+           'Synchronization',
+           'HARD' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-301'
+),
+           'Virtual Memory',
+           'HARD' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-301'
+),
+           'IO Systems',
+           'EASY' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'EE-201'
+),
+           'Ohms Law',
+           'EASY' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'EE-201'
+),
+           'Kirchhoffs Laws',
+           'EASY' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'EE-201'
+),
+           'AC Circuits',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'EE-201'
+),
+           'Thevenin Norton',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'EE-201'
+),
+           'RLC Circuits',
+           'HARD' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'EE-201'
+),
+           'Phasors',
+           'HARD' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'EE-201'
+),
+           'Power Analysis',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'EE-201'
+),
+           'Filters',
+           'HARD' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-401'
+),
+           'Linear Regression',
+           'EASY' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-401'
+),
+           'Classification',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-401'
+),
+           'Neural Networks',
+           'HARD' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-401'
+),
+           'Feature Engineering',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-401'
+),
+           'Model Evaluation',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-401'
+),
+           'Clustering',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-401'
+),
+           'Deep Learning',
+           'HARD' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-401'
+),
+           'NLP Basics',
+           'HARD' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'SE-201'
+),
+           'Requirements Engineering',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'SE-201'
+),
+           'UML Diagrams',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'SE-201'
+),
+           'Agile Methods',
+           'EASY' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'SE-201'
+),
+           'Design Patterns',
+           'HARD' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'SE-201'
+),
+           'Testing Strategies',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'SE-201'
+),
+           'Project Management',
+           'EASY' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'SE-201'
+),
+           'Software Architecture',
+           'HARD' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'SE-201'
+),
+           'DevOps Basics',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'AI-301'
+),
+           'Search Algorithms',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'AI-301'
+),
+           'Knowledge Representation',
+           'HARD' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'AI-301'
+),
+           'Planning',
+           'HARD' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'AI-301'
+),
+           'Bayesian Networks',
+           'HARD' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'AI-301'
+),
+           'Game Theory',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'AI-301'
+),
+           'Expert Systems',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'AI-301'
+),
+           'Computer Vision',
+           'HARD' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'AI-301'
+),
+           'NLP',
+           'HARD' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-211'
+),
+           'Arrays and Linked Lists',
+           'EASY' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-211'
+),
+           'Stacks and Queues',
+           'EASY' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-211'
+),
+           'Trees and Heaps',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-211'
+),
+           'Graphs',
+           'HARD' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-211'
+),
+           'Sorting Algorithms',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-211'
+),
+           'Hash Tables',
+           'MEDIUM' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-211'
+),
+           'Dynamic Programming',
+           'HARD' );
+insert into topics (
+   course_id,
+   topic_name,
+   difficulty_level
+) values ( (
+   select course_id
+     from courses
+    where course_code = 'CS-211'
+),
+           'Complexity Analysis',
+           'MEDIUM' );
+commit;
 
--- Assessments: 5 per course (40 total)
-BEGIN
-  FOR c IN 1..8 LOOP
-    DECLARE pfx VARCHAR2(10);
-    BEGIN
-      pfx := CASE c WHEN 1 THEN 'CS236' WHEN 2 THEN 'CS343' WHEN 3 THEN 'CS301'
-                    WHEN 4 THEN 'EE201' WHEN 5 THEN 'CS401' WHEN 6 THEN 'SE201'
-                    WHEN 7 THEN 'AI301' ELSE 'CS211' END;
-      INSERT INTO ASSESSMENTS(course_id,title,type,total_marks,passing_marks,max_attempts,due_date)
-      VALUES(c,pfx||' Quiz 1','QUIZ',20,10,1,SYSDATE-(70-c));
-      INSERT INTO ASSESSMENTS(course_id,title,type,total_marks,passing_marks,max_attempts,due_date)
-      VALUES(c,pfx||' Quiz 2','QUIZ',20,10,1,SYSDATE-(50-c));
-      INSERT INTO ASSESSMENTS(course_id,title,type,total_marks,passing_marks,max_attempts,due_date)
-      VALUES(c,pfx||' Midterm','MIDTERM',50,25,1,SYSDATE-(35-c));
-      INSERT INTO ASSESSMENTS(course_id,title,type,total_marks,passing_marks,max_attempts,due_date)
-      VALUES(c,pfx||' Assignment 1','ASSIGNMENT',30,15,2,SYSDATE-(55-c));
-      INSERT INTO ASSESSMENTS(course_id,title,type,total_marks,passing_marks,max_attempts,due_date)
-      VALUES(c,pfx||' Lab Test','LAB',25,12,1,SYSDATE-(20-c));
-    END;
-  END LOOP;
-  COMMIT;
-END;
+-- ASSESSMENTS
+begin
+   for c in (
+      select course_id,
+             course_code
+        from courses
+       order by course_id
+   ) loop
+      declare
+         pfx varchar2(10);
+      begin
+         pfx := replace(
+            c.course_code,
+            '-',
+            ''
+         );
+         insert into assessments (
+            course_id,
+            title,
+            type,
+            total_marks,
+            passing_marks,
+            max_attempts,
+            due_date
+         ) values ( c.course_id,
+                    pfx || ' Quiz 1',
+                    'QUIZ',
+                    20,
+                    10,
+                    1,
+                    sysdate - 70 );
+         insert into assessments (
+            course_id,
+            title,
+            type,
+            total_marks,
+            passing_marks,
+            max_attempts,
+            due_date
+         ) values ( c.course_id,
+                    pfx || ' Quiz 2',
+                    'QUIZ',
+                    20,
+                    10,
+                    1,
+                    sysdate - 50 );
+         insert into assessments (
+            course_id,
+            title,
+            type,
+            total_marks,
+            passing_marks,
+            max_attempts,
+            due_date
+         ) values ( c.course_id,
+                    pfx || ' Midterm',
+                    'MIDTERM',
+                    50,
+                    25,
+                    1,
+                    sysdate - 35 );
+         insert into assessments (
+            course_id,
+            title,
+            type,
+            total_marks,
+            passing_marks,
+            max_attempts,
+            due_date
+         ) values ( c.course_id,
+                    pfx || ' Assignment 1',
+                    'ASSIGNMENT',
+                    30,
+                    15,
+                    2,
+                    sysdate - 55 );
+         insert into assessments (
+            course_id,
+            title,
+            type,
+            total_marks,
+            passing_marks,
+            max_attempts,
+            due_date
+         ) values ( c.course_id,
+                    pfx || ' Lab Test',
+                    'LAB',
+                    25,
+                    12,
+                    1,
+                    sysdate - 20 );
+      end;
+   end loop;
+   commit;
+end;
 /
 
--- Questions: 4 per assessment (CS-236 only for grader demo clarity)
-BEGIN
-  FOR a IN (SELECT assessment_id FROM ASSESSMENTS WHERE course_id=1 ORDER BY assessment_id) LOOP
-    INSERT INTO QUESTIONS(assessment_id,topic_id,question_text,marks,difficulty,correct_answer)
-    VALUES(a.assessment_id,1,'Explain SQL JOIN types and their use cases.',5,'MEDIUM','INNER LEFT RIGHT FULL CROSS');
-    INSERT INTO QUESTIONS(assessment_id,topic_id,question_text,marks,difficulty,correct_answer)
-    VALUES(a.assessment_id,2,'What is Boyce-Codd Normal Form?',5,'HARD','Every determinant must be a candidate key');
-    INSERT INTO QUESTIONS(assessment_id,topic_id,question_text,marks,difficulty,correct_answer)
-    VALUES(a.assessment_id,7,'List the ACID properties of transactions.',5,'EASY','Atomicity Consistency Isolation Durability');
-    INSERT INTO QUESTIONS(assessment_id,topic_id,question_text,marks,difficulty,correct_answer)
-    VALUES(a.assessment_id,5,'Write RANK() partitioned by department.',5,'HARD','RANK() OVER (PARTITION BY dept_id ORDER BY cgpa DESC)');
-  END LOOP;
-  -- Questions for other courses (2 per assessment minimum)
-  FOR a IN (SELECT assessment_id,course_id FROM ASSESSMENTS WHERE course_id>1 ORDER BY assessment_id) LOOP
-    INSERT INTO QUESTIONS(assessment_id,topic_id,question_text,marks,difficulty,correct_answer)
-    VALUES(a.assessment_id,(SELECT topic_id FROM TOPICS WHERE course_id=a.course_id AND ROWNUM=1),
-           'Define the core concept of this topic.',10,'MEDIUM','See lecture notes');
-    INSERT INTO QUESTIONS(assessment_id,topic_id,question_text,marks,difficulty,correct_answer)
-    VALUES(a.assessment_id,(SELECT topic_id FROM TOPICS WHERE course_id=a.course_id AND ROWNUM=1),
-           'Apply the concept to a real-world scenario.',10,'HARD','Application-based answer');
-  END LOOP;
-  COMMIT;
-END;
+-- QUESTIONS
+begin
+   for a in (
+      select a.assessment_id,
+             a.course_id
+        from assessments a
+        join courses c
+      on a.course_id = c.course_id
+       where c.course_code = 'CS-236'
+       order by a.assessment_id
+   ) loop
+      insert into questions (
+         assessment_id,
+         topic_id,
+         question_text,
+         marks,
+         difficulty,
+         correct_answer
+      ) values ( a.assessment_id,
+                 (
+                    select topic_id
+                      from topics
+                     where course_id = a.course_id
+                       and topic_name = 'SQL Joins'
+                 ),
+                 'Explain SQL JOIN types and their use cases.',
+                 5,
+                 'MEDIUM',
+                 'INNER LEFT RIGHT FULL CROSS' );
+      insert into questions (
+         assessment_id,
+         topic_id,
+         question_text,
+         marks,
+         difficulty,
+         correct_answer
+      ) values ( a.assessment_id,
+                 (
+                    select topic_id
+                      from topics
+                     where course_id = a.course_id
+                       and topic_name = 'Normalization'
+                 ),
+                 'What is Boyce-Codd Normal Form?',
+                 5,
+                 'HARD',
+                 'Every determinant must be a candidate key' );
+      insert into questions (
+         assessment_id,
+         topic_id,
+         question_text,
+         marks,
+         difficulty,
+         correct_answer
+      ) values ( a.assessment_id,
+                 (
+                    select topic_id
+                      from topics
+                     where course_id = a.course_id
+                       and topic_name = 'Transaction Management'
+                 ),
+                 'List the ACID properties of transactions.',
+                 5,
+                 'EASY',
+                 'Atomicity Consistency Isolation Durability' );
+      insert into questions (
+         assessment_id,
+         topic_id,
+         question_text,
+         marks,
+         difficulty,
+         correct_answer
+      ) values ( a.assessment_id,
+                 (
+                    select topic_id
+                      from topics
+                     where course_id = a.course_id
+                       and topic_name = 'Window Functions'
+                 ),
+                 'Write RANK() partitioned by department.',
+                 5,
+                 'HARD',
+                 'RANK() OVER (PARTITION BY dept_id ORDER BY cgpa DESC)' );
+   end loop;
+   for a in (
+      select a.assessment_id,
+             a.course_id
+        from assessments a
+        join courses c
+      on a.course_id = c.course_id
+       where c.course_code != 'CS-236'
+       order by a.assessment_id
+   ) loop
+      insert into questions (
+         assessment_id,
+         topic_id,
+         question_text,
+         marks,
+         difficulty,
+         correct_answer
+      ) values ( a.assessment_id,
+                 (
+                    select topic_id
+                      from topics
+                     where course_id = a.course_id
+                       and rownum = 1
+                 ),
+                 'Define the core concept of this topic.',
+                 10,
+                 'MEDIUM',
+                 'See lecture notes' );
+      insert into questions (
+         assessment_id,
+         topic_id,
+         question_text,
+         marks,
+         difficulty,
+         correct_answer
+      ) values ( a.assessment_id,
+                 (
+                    select topic_id
+                      from topics
+                     where course_id = a.course_id
+                       and rownum = 1
+                 ),
+                 'Apply the concept to a real-world scenario.',
+                 10,
+                 'HARD',
+                 'Application-based answer' );
+   end loop;
+   commit;
+end;
 /
 
--- Enrollments: 3-4 courses per student (generated via PL/SQL)
-BEGIN
-  -- Core 8 students with fixed meaningful enrollments
-  INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(1,1,'Spring 2026','A','ACTIVE');
-  INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(1,2,'Spring 2026','A','ACTIVE');
-  INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(1,5,'Spring 2026','B','ACTIVE');
-  INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(2,1,'Spring 2026','A','ACTIVE');
-  INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(2,3,'Spring 2026','A','ACTIVE');
-  INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(2,8,'Spring 2026','A','ACTIVE');
-  INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(3,4,'Spring 2026','A','ACTIVE');
-  INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(3,2,'Spring 2026','B','ACTIVE');
-  INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(3,6,'Spring 2026','A','ACTIVE');
-  INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(4,1,'Spring 2026','B','ACTIVE');
-  INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(4,3,'Spring 2026','A','ACTIVE');
-  INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(4,8,'Spring 2026','A','ACTIVE');
-  INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(5,1,'Spring 2026','A','ACTIVE');
-  INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(5,6,'Spring 2026','A','ACTIVE');
-  INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(5,7,'Spring 2026','A','ACTIVE');
-  INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(6,4,'Spring 2026','A','ACTIVE');
-  INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(6,2,'Spring 2026','B','ACTIVE');
-  INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(6,5,'Spring 2026','A','ACTIVE');
-  INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(7,1,'Spring 2026','A','ACTIVE');
-  INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(7,5,'Spring 2026','B','ACTIVE');
-  INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(7,7,'Spring 2026','A','ACTIVE');
-  INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(8,1,'Spring 2026','B','ACTIVE');
-  INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(8,6,'Spring 2026','A','ACTIVE');
-  INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(8,4,'Spring 2026','A','ACTIVE');
-  -- Students 9-60: 3 courses each using modular distribution
-  FOR sid IN 9..60 LOOP
-    DECLARE c1 NUMBER; c2 NUMBER; c3 NUMBER;
-    BEGIN
-      c1:=MOD(sid,8)+1; c2:=MOD(sid+2,8)+1; c3:=MOD(sid+5,8)+1;
-      IF c2=c1 THEN c2:=MOD(c2,8)+1; END IF;
-      IF c3=c1 OR c3=c2 THEN c3:=MOD(c3+1,8)+1; END IF;
-      BEGIN INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(sid,c1,'Spring 2026','A','ACTIVE'); EXCEPTION WHEN OTHERS THEN NULL; END;
-      BEGIN INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(sid,c2,'Spring 2026','B','ACTIVE'); EXCEPTION WHEN OTHERS THEN NULL; END;
-      BEGIN INSERT INTO ENROLLMENTS(student_id,course_id,semester_label,section,status) VALUES(sid,c3,'Spring 2026','A','ACTIVE'); EXCEPTION WHEN OTHERS THEN NULL; END;
-    END;
-  END LOOP;
-  COMMIT;
-END;
+-- ENROLLMENTS
+begin
+  -- Core 8 students with fixed enrollments using course_code lookup
+   insert into enrollments (
+      student_id,
+      course_id,
+      semester_label,
+      section,
+      status
+   ) values ( (
+      select student_id
+        from students
+       where cms_id = '502895'
+   ),
+              (
+                 select course_id
+                   from courses
+                  where course_code = 'CS-236'
+              ),
+              'Spring 2026',
+              'A',
+              'ACTIVE' );
+   insert into enrollments (
+      student_id,
+      course_id,
+      semester_label,
+      section,
+      status
+   ) values ( (
+      select student_id
+        from students
+       where cms_id = '502895'
+   ),
+              (
+                 select course_id
+                   from courses
+                  where course_code = 'CS-343'
+              ),
+              'Spring 2026',
+              'A',
+              'ACTIVE' );
+   insert into enrollments (
+      student_id,
+      course_id,
+      semester_label,
+      section,
+      status
+   ) values ( (
+      select student_id
+        from students
+       where cms_id = '502895'
+   ),
+              (
+                 select course_id
+                   from courses
+                  where course_code = 'CS-401'
+              ),
+              'Spring 2026',
+              'B',
+              'ACTIVE' );
+   insert into enrollments (
+      student_id,
+      course_id,
+      semester_label,
+      section,
+      status
+   ) values ( (
+      select student_id
+        from students
+       where cms_id = '503012'
+   ),
+              (
+                 select course_id
+                   from courses
+                  where course_code = 'CS-236'
+              ),
+              'Spring 2026',
+              'A',
+              'ACTIVE' );
+   insert into enrollments (
+      student_id,
+      course_id,
+      semester_label,
+      section,
+      status
+   ) values ( (
+      select student_id
+        from students
+       where cms_id = '503012'
+   ),
+              (
+                 select course_id
+                   from courses
+                  where course_code = 'CS-301'
+              ),
+              'Spring 2026',
+              'A',
+              'ACTIVE' );
+   insert into enrollments (
+      student_id,
+      course_id,
+      semester_label,
+      section,
+      status
+   ) values ( (
+      select student_id
+        from students
+       where cms_id = '503012'
+   ),
+              (
+                 select course_id
+                   from courses
+                  where course_code = 'CS-211'
+              ),
+              'Spring 2026',
+              'A',
+              'ACTIVE' );
+   insert into enrollments (
+      student_id,
+      course_id,
+      semester_label,
+      section,
+      status
+   ) values ( (
+      select student_id
+        from students
+       where cms_id = '503145'
+   ),
+              (
+                 select course_id
+                   from courses
+                  where course_code = 'EE-201'
+              ),
+              'Spring 2026',
+              'A',
+              'ACTIVE' );
+   insert into enrollments (
+      student_id,
+      course_id,
+      semester_label,
+      section,
+      status
+   ) values ( (
+      select student_id
+        from students
+       where cms_id = '503145'
+   ),
+              (
+                 select course_id
+                   from courses
+                  where course_code = 'CS-343'
+              ),
+              'Spring 2026',
+              'B',
+              'ACTIVE' );
+   insert into enrollments (
+      student_id,
+      course_id,
+      semester_label,
+      section,
+      status
+   ) values ( (
+      select student_id
+        from students
+       where cms_id = '503145'
+   ),
+              (
+                 select course_id
+                   from courses
+                  where course_code = 'SE-201'
+              ),
+              'Spring 2026',
+              'A',
+              'ACTIVE' );
+   insert into enrollments (
+      student_id,
+      course_id,
+      semester_label,
+      section,
+      status
+   ) values ( (
+      select student_id
+        from students
+       where cms_id = '503278'
+   ),
+              (
+                 select course_id
+                   from courses
+                  where course_code = 'CS-236'
+              ),
+              'Spring 2026',
+              'B',
+              'ACTIVE' );
+   insert into enrollments (
+      student_id,
+      course_id,
+      semester_label,
+      section,
+      status
+   ) values ( (
+      select student_id
+        from students
+       where cms_id = '503278'
+   ),
+              (
+                 select course_id
+                   from courses
+                  where course_code = 'CS-301'
+              ),
+              'Spring 2026',
+              'A',
+              'ACTIVE' );
+   insert into enrollments (
+      student_id,
+      course_id,
+      semester_label,
+      section,
+      status
+   ) values ( (
+      select student_id
+        from students
+       where cms_id = '503278'
+   ),
+              (
+                 select course_id
+                   from courses
+                  where course_code = 'CS-211'
+              ),
+              'Spring 2026',
+              'A',
+              'ACTIVE' );
+   insert into enrollments (
+      student_id,
+      course_id,
+      semester_label,
+      section,
+      status
+   ) values ( (
+      select student_id
+        from students
+       where cms_id = '503411'
+   ),
+              (
+                 select course_id
+                   from courses
+                  where course_code = 'CS-236'
+              ),
+              'Spring 2026',
+              'A',
+              'ACTIVE' );
+   insert into enrollments (
+      student_id,
+      course_id,
+      semester_label,
+      section,
+      status
+   ) values ( (
+      select student_id
+        from students
+       where cms_id = '503411'
+   ),
+              (
+                 select course_id
+                   from courses
+                  where course_code = 'SE-201'
+              ),
+              'Spring 2026',
+              'A',
+              'ACTIVE' );
+   insert into enrollments (
+      student_id,
+      course_id,
+      semester_label,
+      section,
+      status
+   ) values ( (
+      select student_id
+        from students
+       where cms_id = '503411'
+   ),
+              (
+                 select course_id
+                   from courses
+                  where course_code = 'AI-301'
+              ),
+              'Spring 2026',
+              'A',
+              'ACTIVE' );
+   insert into enrollments (
+      student_id,
+      course_id,
+      semester_label,
+      section,
+      status
+   ) values ( (
+      select student_id
+        from students
+       where cms_id = '503544'
+   ),
+              (
+                 select course_id
+                   from courses
+                  where course_code = 'EE-201'
+              ),
+              'Spring 2026',
+              'A',
+              'ACTIVE' );
+   insert into enrollments (
+      student_id,
+      course_id,
+      semester_label,
+      section,
+      status
+   ) values ( (
+      select student_id
+        from students
+       where cms_id = '503544'
+   ),
+              (
+                 select course_id
+                   from courses
+                  where course_code = 'CS-343'
+              ),
+              'Spring 2026',
+              'B',
+              'ACTIVE' );
+   insert into enrollments (
+      student_id,
+      course_id,
+      semester_label,
+      section,
+      status
+   ) values ( (
+      select student_id
+        from students
+       where cms_id = '503544'
+   ),
+              (
+                 select course_id
+                   from courses
+                  where course_code = 'CS-401'
+              ),
+              'Spring 2026',
+              'A',
+              'ACTIVE' );
+   insert into enrollments (
+      student_id,
+      course_id,
+      semester_label,
+      section,
+      status
+   ) values ( (
+      select student_id
+        from students
+       where cms_id = '503677'
+   ),
+              (
+                 select course_id
+                   from courses
+                  where course_code = 'CS-236'
+              ),
+              'Spring 2026',
+              'A',
+              'ACTIVE' );
+   insert into enrollments (
+      student_id,
+      course_id,
+      semester_label,
+      section,
+      status
+   ) values ( (
+      select student_id
+        from students
+       where cms_id = '503677'
+   ),
+              (
+                 select course_id
+                   from courses
+                  where course_code = 'CS-401'
+              ),
+              'Spring 2026',
+              'B',
+              'ACTIVE' );
+   insert into enrollments (
+      student_id,
+      course_id,
+      semester_label,
+      section,
+      status
+   ) values ( (
+      select student_id
+        from students
+       where cms_id = '503677'
+   ),
+              (
+                 select course_id
+                   from courses
+                  where course_code = 'AI-301'
+              ),
+              'Spring 2026',
+              'A',
+              'ACTIVE' );
+   insert into enrollments (
+      student_id,
+      course_id,
+      semester_label,
+      section,
+      status
+   ) values ( (
+      select student_id
+        from students
+       where cms_id = '503810'
+   ),
+              (
+                 select course_id
+                   from courses
+                  where course_code = 'CS-236'
+              ),
+              'Spring 2026',
+              'B',
+              'ACTIVE' );
+   insert into enrollments (
+      student_id,
+      course_id,
+      semester_label,
+      section,
+      status
+   ) values ( (
+      select student_id
+        from students
+       where cms_id = '503810'
+   ),
+              (
+                 select course_id
+                   from courses
+                  where course_code = 'SE-201'
+              ),
+              'Spring 2026',
+              'A',
+              'ACTIVE' );
+   insert into enrollments (
+      student_id,
+      course_id,
+      semester_label,
+      section,
+      status
+   ) values ( (
+      select student_id
+        from students
+       where cms_id = '503810'
+   ),
+              (
+                 select course_id
+                   from courses
+                  where course_code = 'EE-201'
+              ),
+              'Spring 2026',
+              'A',
+              'ACTIVE' );
+  -- Remaining students: 3 courses each using modular distribution
+   for s in (
+      select student_id
+        from students
+       where cms_id not in ( '502895',
+                             '503012',
+                             '503145',
+                             '503278',
+                             '503411',
+                             '503544',
+                             '503677',
+                             '503810' )
+       order by student_id
+   ) loop
+      declare
+         c1  number;
+         c2  number;
+         c3  number;
+         idx number;
+      begin
+         select student_id
+           into idx
+           from (
+            select student_id,
+                   rownum rn
+              from students
+             where cms_id not in ( '502895',
+                                   '503012',
+                                   '503145',
+                                   '503278',
+                                   '503411',
+                                   '503544',
+                                   '503677',
+                                   '503810' )
+             order by student_id
+         )
+          where student_id = s.student_id;
+         select course_id
+           into c1
+           from (
+            select course_id,
+                   rownum rn
+              from courses
+             order by course_id
+         )
+          where rn = mod(
+            s.student_id,
+            8
+         ) + 1;
+         select course_id
+           into c2
+           from (
+            select course_id,
+                   rownum rn
+              from courses
+             order by course_id
+         )
+          where rn = mod(
+            s.student_id + 2,
+            8
+         ) + 1;
+         select course_id
+           into c3
+           from (
+            select course_id,
+                   rownum rn
+              from courses
+             order by course_id
+         )
+          where rn = mod(
+            s.student_id + 5,
+            8
+         ) + 1;
+         if c2 = c1 then
+            select course_id
+              into c2
+              from (
+               select course_id,
+                      rownum rn
+                 from courses
+                order by course_id
+            )
+             where rn = mod(
+               c2,
+               8
+            ) + 1;         end if;
+         if c3 = c1
+         or c3 = c2 then
+            select course_id
+              into c3
+              from (
+               select course_id,
+                      rownum rn
+                 from courses
+                order by course_id
+            )
+             where rn = mod(
+               c3 + 1,
+               8
+            ) + 1;         end if;
+         begin
+            insert into enrollments (
+               student_id,
+               course_id,
+               semester_label,
+               section,
+               status
+            ) values ( s.student_id,
+                       c1,
+                       'Spring 2026',
+                       'A',
+                       'ACTIVE' );         exception
+            when others then
+               null;
+         end;
+         begin
+            insert into enrollments (
+               student_id,
+               course_id,
+               semester_label,
+               section,
+               status
+            ) values ( s.student_id,
+                       c2,
+                       'Spring 2026',
+                       'B',
+                       'ACTIVE' );         exception
+            when others then
+               null;
+         end;
+         begin
+            insert into enrollments (
+               student_id,
+               course_id,
+               semester_label,
+               section,
+               status
+            ) values ( s.student_id,
+                       c3,
+                       'Spring 2026',
+                       'A',
+                       'ACTIVE' );         exception
+            when others then
+               null;
+         end;
+      end;
+   end loop;
+   commit;
+end;
 /
 
--- Assessment Attempts: 300+ records with scores based on risk level
-BEGIN
-  FOR e IN (SELECT e.student_id,e.course_id,s.risk_level
-            FROM ENROLLMENTS e JOIN STUDENTS s ON e.student_id=s.student_id
-            WHERE e.status='ACTIVE' ORDER BY e.student_id,e.course_id) LOOP
-    FOR a IN (SELECT assessment_id,total_marks,passing_marks FROM ASSESSMENTS WHERE course_id=e.course_id) LOOP
-      DECLARE v_base NUMBER; v_sc NUMBER;
-      BEGIN
-        v_base:=CASE e.risk_level
-          WHEN 'LOW'      THEN 75+FLOOR(DBMS_RANDOM.VALUE(0,20))
-          WHEN 'MEDIUM'   THEN 55+FLOOR(DBMS_RANDOM.VALUE(0,20))
-          WHEN 'HIGH'     THEN 42+FLOOR(DBMS_RANDOM.VALUE(0,22))
-          WHEN 'CRITICAL' THEN 22+FLOOR(DBMS_RANDOM.VALUE(0,26)) ELSE 60 END;
-        v_sc:=LEAST(ROUND(a.total_marks*v_base/100,2),a.total_marks);
-        INSERT INTO ASSESSMENT_ATTEMPTS(student_id,assessment_id,attempt_no,score,status,is_late,end_time)
-        VALUES(e.student_id,a.assessment_id,1,v_sc,'GRADED','N',SYSDATE-FLOOR(DBMS_RANDOM.VALUE(1,55)));
-      END;
-    END LOOP;
-  END LOOP;
-  -- Force 3 consecutive fails for Omar Tariq (sid=2) in CS-236 to demo trigger
-  UPDATE ASSESSMENT_ATTEMPTS SET score=6,status='GRADED'
-  WHERE student_id=2 AND assessment_id IN(SELECT assessment_id FROM ASSESSMENTS WHERE course_id=1);
-  -- Force 3 consecutive fails for Bilal Khan (sid=4) in CS-301 to demo trigger
-  UPDATE ASSESSMENT_ATTEMPTS SET score=7,status='GRADED'
-  WHERE student_id=4 AND assessment_id IN(SELECT assessment_id FROM ASSESSMENTS WHERE course_id=3);
-  COMMIT;
-END;
+-- ASSESSMENT ATTEMPTS
+begin
+   for e in (
+      select e.student_id,
+             e.course_id,
+             s.risk_level
+        from enrollments e
+        join students s
+      on e.student_id = s.student_id
+       where e.status = 'ACTIVE'
+       order by e.student_id,
+                e.course_id
+   ) loop
+      for a in (
+         select assessment_id,
+                total_marks
+           from assessments
+          where course_id = e.course_id
+      ) loop
+         declare
+            v_base number;
+            v_sc   number;
+         begin
+            v_base :=
+               case e.risk_level
+                  when 'LOW'      then
+                     75 + floor(dbms_random.value(
+                        0,
+                        20
+                     ))
+                  when 'MEDIUM'   then
+                     55 + floor(dbms_random.value(
+                        0,
+                        20
+                     ))
+                  when 'HIGH'     then
+                     42 + floor(dbms_random.value(
+                        0,
+                        22
+                     ))
+                  when 'CRITICAL' then
+                     22 + floor(dbms_random.value(
+                        0,
+                        26
+                     ))
+                  else
+                     60
+               end;
+            v_sc := least(
+               round(
+                  a.total_marks * v_base / 100,
+                  2
+               ),
+               a.total_marks
+            );
+            insert into assessment_attempts (
+               student_id,
+               assessment_id,
+               attempt_no,
+               score,
+               status,
+               is_late,
+               end_time
+            ) values ( e.student_id,
+                       a.assessment_id,
+                       1,
+                       v_sc,
+                       'GRADED',
+                       'N',
+                       sysdate - floor(dbms_random.value(
+                          1,
+                          55
+                       )) );
+         end;
+      end loop;
+   end loop;
+   update assessment_attempts
+      set score = 6,
+          status = 'GRADED'
+    where student_id = (
+         select student_id
+           from students
+          where cms_id = '503012'
+      )
+      and assessment_id in (
+      select assessment_id
+        from assessments
+       where course_id = (
+         select course_id
+           from courses
+          where course_code = 'CS-236'
+      )
+   );
+   update assessment_attempts
+      set score = 7,
+          status = 'GRADED'
+    where student_id = (
+         select student_id
+           from students
+          where cms_id = '503278'
+      )
+      and assessment_id in (
+      select assessment_id
+        from assessments
+       where course_id = (
+         select course_id
+           from courses
+          where course_code = 'CS-301'
+      )
+   );
+   commit;
+end;
 /
 
--- Topic Performance: direct insert via aggregation query
-INSERT INTO TOPIC_PERFORMANCE(student_id,topic_id,course_id,mastery_pct,attempts_count,correct_count,trend,last_attempt_date)
-SELECT e.student_id, t.topic_id, e.course_id,
-  ROUND(CASE t.difficulty_level WHEN 'EASY' THEN 75+DBMS_RANDOM.VALUE(0,15)
-        WHEN 'MEDIUM' THEN 55+DBMS_RANDOM.VALUE(0,20) ELSE 35+DBMS_RANDOM.VALUE(0,25) END, 2),
-  FLOOR(DBMS_RANDOM.VALUE(3,10)),
-  FLOOR(DBMS_RANDOM.VALUE(2,8)),
-  CASE WHEN MOD(e.student_id+t.topic_id,3)=0 THEN 'UP'
-       WHEN MOD(e.student_id+t.topic_id,3)=1 THEN 'DOWN' ELSE 'STABLE' END,
-  SYSDATE-FLOOR(DBMS_RANDOM.VALUE(1,30))
-FROM ENROLLMENTS e JOIN TOPICS t ON e.course_id=t.course_id
-WHERE e.status='ACTIVE';
-COMMIT;
+-- TOPIC PERFORMANCE
+insert into topic_performance (
+   student_id,
+   topic_id,
+   course_id,
+   mastery_pct,
+   attempts_count,
+   correct_count,
+   trend,
+   last_attempt_date
+)
+   select e.student_id,
+          t.topic_id,
+          e.course_id,
+          round(
+             case t.difficulty_level
+                when 'EASY'   then
+                   75 + dbms_random.value(
+                      0,
+                      15
+                   )
+                when 'MEDIUM' then
+                   55 + dbms_random.value(
+                      0,
+                      20
+                   )
+                else
+                   35 + dbms_random.value(
+                      0,
+                      25
+                   )
+             end,
+             2
+          ),
+          floor(dbms_random.value(
+             3,
+             10
+          )),
+          floor(dbms_random.value(
+             2,
+             8
+          )),
+          case
+             when mod(
+                e.student_id + t.topic_id,
+                3
+             ) = 0 then
+                'UP'
+             when mod(
+                e.student_id + t.topic_id,
+                3
+             ) = 1 then
+                'DOWN'
+             else
+                'STABLE'
+          end,
+          sysdate - floor(dbms_random.value(
+             1,
+             30
+          ))
+     from enrollments e
+     join topics t
+   on e.course_id = t.course_id
+    where e.status = 'ACTIVE';
+commit;
 
--- Session logs: LOGIN events + 16 ABSENCE entries for Bilal Khan (triggers attendance flag)
-BEGIN
-  FOR e IN (SELECT DISTINCT student_id FROM ENROLLMENTS WHERE status='ACTIVE') LOOP
-    INSERT INTO SESSION_LOGS(student_id,event_type,logged_at)
-    VALUES(e.student_id,'LOGIN',SYSDATE-FLOOR(DBMS_RANDOM.VALUE(1,60)));
-  END LOOP;
-  -- Bilal Khan (student_id=4) in CS-301 (course_id=3): 16 absences exceeds max_absences=15
-  FOR i IN 1..16 LOOP
-    INSERT INTO SESSION_LOGS(student_id,course_id,event_type,event_detail,logged_at)
-    VALUES(4,3,'ABSENCE','Week '||i||' absence recorded',SYSDATE-(65-i));
-  END LOOP;
-  -- Omar Tariq (student_id=2): some absences
-  FOR i IN 1..11 LOOP
-    INSERT INTO SESSION_LOGS(student_id,course_id,event_type,event_detail,logged_at)
-    VALUES(2,1,'ABSENCE','Week '||i||' absence recorded',SYSDATE-(65-i));
-  END LOOP;
-  COMMIT;
-END;
+-- SESSION LOGS
+begin
+   for e in (
+      select distinct student_id
+        from enrollments
+       where status = 'ACTIVE'
+   ) loop
+      insert into session_logs (
+         student_id,
+         event_type,
+         logged_at
+      ) values ( e.student_id,
+                 'LOGIN',
+                 sysdate - floor(dbms_random.value(
+                    1,
+                    60
+                 )) );
+   end loop;
+   for i in 1..16 loop
+      insert into session_logs (
+         student_id,
+         course_id,
+         event_type,
+         event_detail,
+         logged_at
+      ) values ( (
+         select student_id
+           from students
+          where cms_id = '503278'
+      ),
+                 (
+                    select course_id
+                      from courses
+                     where course_code = 'CS-301'
+                 ),
+                 'ABSENCE',
+                 'Week '
+                 || i
+                 || ' absence recorded',
+                 sysdate - ( 65 - i ) );
+   end loop;
+   for i in 1..11 loop
+      insert into session_logs (
+         student_id,
+         course_id,
+         event_type,
+         event_detail,
+         logged_at
+      ) values ( (
+         select student_id
+           from students
+          where cms_id = '503012'
+      ),
+                 (
+                    select course_id
+                      from courses
+                     where course_code = 'CS-236'
+                 ),
+                 'ABSENCE',
+                 'Week '
+                 || i
+                 || ' absence recorded',
+                 sysdate - ( 65 - i ) );
+   end loop;
+   commit;
+end;
 /
 
--- Risk Flags: pre-existing flags for CRITICAL/HIGH students
-INSERT INTO RISK_FLAGS(student_id,course_id,flag_type,severity,description,is_acknowledged,resolved)
-VALUES(2,1,'CONSECUTIVE_FAIL','CRITICAL','3+ consecutive failed attempts in CS-236','N','N');
-INSERT INTO RISK_FLAGS(student_id,course_id,flag_type,severity,description,is_acknowledged,resolved)
-VALUES(4,3,'ATTENDANCE_BREACH','HIGH','16 absences exceed limit of 15 in CS-301','Y','N');
-INSERT INTO RISK_FLAGS(student_id,course_id,flag_type,severity,description,is_acknowledged,resolved)
-VALUES(8,1,'LOW_MASTERY','HIGH','Mastery below threshold in multiple CS-236 topics','N','N');
-COMMIT;
+-- RISK FLAGS
+insert into risk_flags (
+   student_id,
+   course_id,
+   flag_type,
+   severity,
+   description,
+   is_acknowledged,
+   resolved
+) values ( (
+   select student_id
+     from students
+    where cms_id = '503012'
+),
+           (
+              select course_id
+                from courses
+               where course_code = 'CS-236'
+           ),
+           'CONSECUTIVE_FAIL',
+           'CRITICAL',
+           '3+ consecutive failed attempts in CS-236',
+           'N',
+           'N' );
+insert into risk_flags (
+   student_id,
+   course_id,
+   flag_type,
+   severity,
+   description,
+   is_acknowledged,
+   resolved
+) values ( (
+   select student_id
+     from students
+    where cms_id = '503278'
+),
+           (
+              select course_id
+                from courses
+               where course_code = 'CS-301'
+           ),
+           'ATTENDANCE_BREACH',
+           'HIGH',
+           '16 absences exceed limit of 15 in CS-301',
+           'Y',
+           'N' );
+insert into risk_flags (
+   student_id,
+   course_id,
+   flag_type,
+   severity,
+   description,
+   is_acknowledged,
+   resolved
+) values ( (
+   select student_id
+     from students
+    where cms_id = '503810'
+),
+           (
+              select course_id
+                from courses
+               where course_code = 'CS-236'
+           ),
+           'LOW_MASTERY',
+           'HIGH',
+           'Mastery below threshold in multiple CS-236 topics',
+           'N',
+           'N' );
+commit;
 
--- Interventions: 4 matching mock data (flag_ids 1,2,3 from above)
-INSERT INTO INTERVENTIONS(student_id,flag_id,instructor_id,int_type,description,status,assigned_date,due_date)
-VALUES(2,1,1,'ACADEMIC_WARNING','Student Omar Tariq requires immediate academic review for CS-236 failure pattern.','PENDING',DATE'2026-04-10',DATE'2026-04-30');
-INSERT INTO INTERVENTIONS(student_id,flag_id,instructor_id,int_type,description,status,assigned_date,due_date,outcome_notes,closed_at)
-VALUES(4,2,3,'COUNSELING_REFERRAL','Bilal Khan referred for academic counseling due to attendance breach in CS-301.','COMPLETED',DATE'2026-04-08',DATE'2026-04-20','Student attended 2 counseling sessions. Plan in place.',DATE'2026-04-22');
-INSERT INTO INTERVENTIONS(student_id,flag_id,instructor_id,int_type,description,status,assigned_date,due_date)
-VALUES(8,3,6,'ATTENDANCE_WARNING','Usman Shah issued formal attendance warning for CE courses.','IN_PROGRESS',DATE'2026-04-12',DATE'2026-05-05');
-COMMIT;
+-- INTERVENTIONS
+insert into interventions (
+   student_id,
+   flag_id,
+   instructor_id,
+   int_type,
+   description,
+   status,
+   assigned_date,
+   due_date
+) values ( (
+   select student_id
+     from students
+    where cms_id = '503012'
+),
+           (
+              select flag_id
+                from risk_flags
+               where student_id = (
+                    select student_id
+                      from students
+                     where cms_id = '503012'
+                 )
+                 and flag_type = 'CONSECUTIVE_FAIL'
+           ),
+           (
+              select instructor_id
+                from instructors
+               where email = 'ayesha.hakim@seecs.nust.edu.pk'
+           ),
+           'ACADEMIC_WARNING',
+           'Student Omar Tariq requires immediate academic review for CS-236 failure pattern.',
+           'PENDING',
+           date '2026-04-10',
+           date '2026-04-30' );
+insert into interventions (
+   student_id,
+   flag_id,
+   instructor_id,
+   int_type,
+   description,
+   status,
+   assigned_date,
+   due_date,
+   outcome_notes,
+   closed_at
+) values ( (
+   select student_id
+     from students
+    where cms_id = '503278'
+),
+           (
+              select flag_id
+                from risk_flags
+               where student_id = (
+                    select student_id
+                      from students
+                     where cms_id = '503278'
+                 )
+                 and flag_type = 'ATTENDANCE_BREACH'
+           ),
+           (
+              select instructor_id
+                from instructors
+               where email = 'irfan.khan@seecs.nust.edu.pk'
+           ),
+           'COUNSELING_REFERRAL',
+           'Bilal Khan referred for academic counseling due to attendance breach in CS-301.',
+           'COMPLETED',
+           date '2026-04-08',
+           date '2026-04-20',
+           'Student attended 2 counseling sessions. Plan in place.',
+           date '2026-04-22' );
+insert into interventions (
+   student_id,
+   flag_id,
+   instructor_id,
+   int_type,
+   description,
+   status,
+   assigned_date,
+   due_date
+) values ( (
+   select student_id
+     from students
+    where cms_id = '503810'
+),
+           (
+              select flag_id
+                from risk_flags
+               where student_id = (
+                    select student_id
+                      from students
+                     where cms_id = '503810'
+                 )
+                 and flag_type = 'LOW_MASTERY'
+           ),
+           (
+              select instructor_id
+                from instructors
+               where email = 'tariq.mehmood@seecs.nust.edu.pk'
+           ),
+           'ATTENDANCE_WARNING',
+           'Usman Shah issued formal attendance warning for CE courses.',
+           'IN_PROGRESS',
+           date '2026-04-12',
+           date '2026-05-05' );
+commit;
 
--- Tutoring intervention for Hassan Raza requires a flag first
-INSERT INTO RISK_FLAGS(student_id,course_id,flag_type,severity,description,is_acknowledged,resolved)
-VALUES(6,4,'LOW_MASTERY','HIGH','Hassan Raza scoring below 60% in EE-201 topics','Y','N');
-INSERT INTO INTERVENTIONS(student_id,flag_id,instructor_id,int_type,description,status,assigned_date,due_date,outcome_notes,closed_at)
-VALUES(6,4,4,'TUTORING_ASSIGNED','Peer tutoring sessions assigned for Circuit Analysis.','COMPLETED',DATE'2026-04-11',DATE'2026-04-25','Completed 3 tutoring sessions. Grade improved.',DATE'2026-04-26');
-COMMIT;
+insert into risk_flags (
+   student_id,
+   course_id,
+   flag_type,
+   severity,
+   description,
+   is_acknowledged,
+   resolved
+) values ( (
+   select student_id
+     from students
+    where cms_id = '503544'
+),
+           (
+              select course_id
+                from courses
+               where course_code = 'EE-201'
+           ),
+           'LOW_MASTERY',
+           'HIGH',
+           'Hassan Raza scoring below 60% in EE-201 topics',
+           'Y',
+           'N' );
+commit;
+insert into interventions (
+   student_id,
+   flag_id,
+   instructor_id,
+   int_type,
+   description,
+   status,
+   assigned_date,
+   due_date,
+   outcome_notes,
+   closed_at
+) values ( (
+   select student_id
+     from students
+    where cms_id = '503544'
+),
+           (
+              select flag_id
+                from risk_flags
+               where student_id = (
+                    select student_id
+                      from students
+                     where cms_id = '503544'
+                 )
+                 and flag_type = 'LOW_MASTERY'
+           ),
+           (
+              select instructor_id
+                from instructors
+               where email = 'sara.ahmed@seecs.nust.edu.pk'
+           ),
+           'TUTORING_ASSIGNED',
+           'Peer tutoring sessions assigned for Circuit Analysis.',
+           'COMPLETED',
+           date '2026-04-11',
+           date '2026-04-25',
+           'Completed 3 tutoring sessions. Grade improved.',
+           date '2026-04-26' );
+commit;
 
--- End of ASPAE_Oracle_Schema.sql
+-- End of ASPAE_Oracle_Schema_Final.sql
